@@ -1,0 +1,20 @@
+author: Jamie Femia
+title: Jamie Femia
+description: Developer, Engineering Manager, Hobbyist Chef
+email: badgerr@gmail.com
+
+twitter_username: elBadgerr
+github_username: jfemia
+linkedin_username: jamesfemia
+
+permalink: /blog/:year/:month/:day/:title
+
+markdown: kramdown
+
+sass:
+  style: compressed
+
+paginate:           5
+paginate_path: "/blog/page:num/"
+plugins:
+  - jekyll-paginate
