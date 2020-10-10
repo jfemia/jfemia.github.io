@@ -1,0 +1,64 @@
+---
+layout: post
+title: "Redux with React hooks"
+subtitle: "Getting started with Redux in a React application"
+date: 2020-10-10 14:10:43 +0000
+background: '/img/posts/01.jpg'
+---
+What is redux and why / when might I want to use it?
+Rather than throw explainations about redux terminology at you all at once, I'll introduce relevant concepts as we encounter them.
+
+Set up
+There are many pages of redux documentation and tutorials out there,
+and all of them present their own conventions for structuring redux code.
+I've found that many of these have good and bad parts, and so when I work with Redux I try and structure it in a clear and concise way.
+
+For this tutorial I'm going to create a boilerplate app so we have something to work with:
+npx create-react-app react-redux-hooks
+
+I'll be building one of the most overused apps done in tutorials, a "todo" app.
+
+Firstly we need redux and react-redux packages
+yarn add redux react-redux
+
+Now we introduce a couple of redux concepts - the store, and reducers
+
+We won't implement anything else on the redux side just yet, as we're not finished with the initial setup
+
+In order to link the redux store with our react app, react-redux gives us a Provider component, that we need to use to wrap the entire application so our store is available to our components.
+
+We do this in index.js
+
+This is enough to be able to get data out of the state. 
+
+We can modify App.js to show how, using another function from react-redux - useSelector. This is a hook to connect to a specific piece of redux state
+
+We can now use our todos to render - for now we'll just list the todos.
+
+We can't see anything. This is to be expected, we haven't added any todos yet. But how do we do that? We need to define some actions and handle them in our reducer.
+
+Now that we have an action to add a todo, we need a way of triggering it. Let's quickly add a text input and Add button to the page
+
+The button needs to take the text input value and dispatch the add action. To do this we use the other react-redux hook - useDispatch, to get a dispatch function.
+
+Now our button callback can dispatch the new todo, and we see the list being populated.
+
+
+So that's the basics, but what else can we do with this?
+
+We said we wanted to be able to set items to "done", and it would also be useful to be able to delete todo items.
+
+Usually this type of data management (input, update, delete) would be driven by some kind of persistent data storage. We won't worry about that just yet, however we do need to treat the data similarly - namely we need to generate IDs to identify our todo items.
+Without this, we will struggle to update items as we only have the name to work with, and this might now be unique.
+
+We can simply update our reducer, so that when it adds a new todo, it also generates an id for it. Since this is an example, we'll just use a running counter from 1.
+
+We can also update our list display to use the actual todo keys instead of the array index.
+
+Now let's add a couple more actions for updating status, and deleting, using the ID to find the item to update.
+
+Now that we have more than one possible action in our reducer, it becomes more readable to use a switch statement
+
+Let's add a bit more UI to make use of these new actions
+
+There we go, some rough buttons to set a todo as "done", or delete one. 
