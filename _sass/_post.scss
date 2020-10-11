@@ -1,6 +1,6 @@
 .post-preview {
   > a {
-    color: $gray-900;
+    color: $gray-300;
     &:focus,
     &:hover {
       text-decoration: none;
@@ -23,7 +23,7 @@
     color: $gray-600;
     > a {
       text-decoration: none;
-      color: $gray-900;
+      color: $gray-300;
       &:focus,
       &:hover {
         text-decoration: underline;
