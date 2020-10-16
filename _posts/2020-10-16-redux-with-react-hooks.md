@@ -2,14 +2,14 @@
 layout: post
 title: "Redux with React hooks"
 subtitle: "Getting started with Redux in a React application"
-date: 2020-10-10 14:10:43 +0000
-background: '/img/posts/01.jpg'
+date: 2020-10-16 14:10:43 +0000
+background: '/img/posts/2020-10-16/01.jpg'
 ---
 What is Redux and why do you care?
 
 > The short answer: It lets you define a regular javascript object that you use to store some global state so you can access it from any part of your app. That's effectively it, the rest is bells and whistles.
 
-Before we start, if you learn better by seeing the whole thing working, the sample app code we build in this tutorial is [available here.](https://github.com/jfemia/react-redux-hooks-example-app).
+Before we start, if you learn better by seeing the whole thing working, the sample app code we build in this tutorial is [available here](https://github.com/jfemia/react-redux-hooks-example-app).
 
 ***
 
@@ -160,6 +160,37 @@ Also, what is `t.title`? We didn't actually define any structure for our todo it
 So how do we add todos? We need to introduce the next Redux concept, **Actions**, and then define one for adding todos.
 
 # Actions
+
+An action in Redux is conventionally a Javascript object with `type` and `payload` fields.
+
+The `type` identifies what the action does, usually a string, while `payload` is any other arbitrary data that the action needs, usually data that is going to be put into the Store.
+
+Let's revisit our `store/todo.js` file, and define an action for adding items to our todo list.
+```js
+// Insert above the existing initialState line...
+const ADD_TODO = "ADD_TODO";
+
+export const addTodo = (title) => ({ type: ADD_TODO, payload: { title }});
+```
+
+We're doing two things there, and in Redux-world they're both optional - however I find this to be a good convention:
+* `ADD_TODO` puts the action type into a variable we can refer to elsewhere (and avoid the risk of typos during refactoring)
+* `addTodo` defines an "action builder" function - that is, a function that returns a new action object with a specified payload. This makes it easier for code that wants to trigger this action because it doesn't have to implement creation of the whole object, and it makes the call more expressive in my opinion.
+
+The part of the code that handles the action and does something with its payload is the reducer function.
+
+Right now our function does nothing but `return state`. Here's how we respond to our `ADD_TODO` action by adding a new object to our state:
+```js
+export default function(state = initialState, action) {
+  if(action.type === ADD_TODO) {
+    return [...state, { title: action.payload.title }];
+  }
+  else {
+    return state;
+  }
+}
+```
+Remember that the Store is immutable, so we can't just do `state.push` as that would modify the existing object. What we need to do instead is return a copy of the state with our new item added, and in our example we are doing that using ES6 spread syntax to unpack state into a new array and add a new todo item using the title in the action payload.
 
 Now that we have an action to add a todo, we need a way of triggering it. Let's quickly add a text input and Add button to the page
 

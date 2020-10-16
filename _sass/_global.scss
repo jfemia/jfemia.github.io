@@ -13,6 +13,10 @@ p {
   }
 }
 
+code {
+  color: #a6e22e;
+}
+
 h1,
 h2,
 h3,
@@ -31,6 +35,9 @@ a {
   &:hover {
     color: $primary;
   }
+  & i {
+    color: $gray-600;
+  }
 }
 
 hr {
@@ -44,6 +51,14 @@ pre {
 blockquote {
   font-style: italic;
   color: $gray-500;
+  background-color: $gray-700;
+  padding: 0.25em;
+  border-left: 10px solid $gray-500;
+  margin: 24px 0;
+
+  p {
+    margin: 0;
+  }
 }
 
 .section-heading {
