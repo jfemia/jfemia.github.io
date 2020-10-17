@@ -9,7 +9,7 @@ What is Redux and why do you care?
 
 > The short answer: It lets you define a regular javascript object that you use to store some global state so you can access it from any part of your app. That's effectively it, the rest is bells and whistles.
 
-Before we start, if you learn better by seeing the whole thing working, the sample app code we build in this tutorial is [available here](https://github.com/jfemia/react-redux-hooks-example-app).
+Before we start, if you learn better by seeing the whole thing working, the sample app code we build in both parts of this tutorial is [available here](https://github.com/jfemia/react-redux-hooks-example-app).
 
 ***
 
@@ -138,7 +138,9 @@ function App() {
 }
 ```
 
-Here we are using another function from `react-redux` - `useSelector`. This is a hook to connect to a specific piece of Redux state. Connecting in this way means that React will re-render if the specified part of the state changes, similar to `props`, or `useState`.
+Here we are using another function from `react-redux` - `useSelector`. This is a hook to connect to a specific piece of Redux state. Connecting in this way means that React will re-render if the specified part of the state changes, similar to `props`, or `useState`. 
+
+I have seen a lot of tutorials and guides making use of `mapStateToProps` instead - this is also valid and is the more established way of doing it, but I find `useSelector` a lot more expressive.
 
 Our `todos` variable now contains an array from the state - we can quickly update our `App.js` return value to include it (and to clear out some of the default React text). We aren't aiming to be UI wizards here, any display will work...
 ```jsx
@@ -173,7 +175,7 @@ const ADD_TODO = "ADD_TODO";
 export const addTodo = (title) => ({ type: ADD_TODO, payload: { title }});
 ```
 
-We're doing two things there, and in Redux-world they're both optional - however I find this to be a good convention:
+We're doing two things here, and in Redux-world they're both optional - however I find this to be a good convention:
 * `ADD_TODO` puts the action type into a variable we can refer to elsewhere (and avoid the risk of typos during refactoring)
 * `addTodo` defines an "action builder" function - that is, a function that returns a new action object with a specified payload. This makes it easier for code that wants to trigger this action because it doesn't have to implement creation of the whole object, and it makes the call more expressive in my opinion.
 
@@ -190,30 +192,74 @@ export default function(state = initialState, action) {
   }
 }
 ```
-Remember that the Store is immutable, so we can't just do `state.push` as that would modify the existing object. What we need to do instead is return a copy of the state with our new item added, and in our example we are doing that using ES6 spread syntax to unpack state into a new array and add a new todo item using the title in the action payload.
+Remember that the Store is immutable, so we can't just do `state.push` as that would modify the existing object. What we need to do instead is return a copy of the state with our new item added. In our example we are doing that using ES6 spread syntax to unpack `state` into a new array and add a new todo item using the title in the `action` payload.
 
-Now that we have an action to add a todo, we need a way of triggering it. Let's quickly add a text input and Add button to the page
+## Dispatching Actions
 
-The button needs to take the text input value and dispatch the add action. To do this we use the other react-redux hook - useDispatch, to get a dispatch function.
+Now that we have an action to add a todo, we need a way of triggering it. In Redux we do this by "dispatching" an action. Dispatch is a function of Redux that receives an action and passes it through the reducers.
 
-Now our button callback can dispatch the new todo, and we see the list being populated.
+Let's quickly add a text input and Add button to `src/App.js` so we have a way of submitting a todo item:
+```jsx
+// modify the React import to include additional hook functions needed
+import React, { useRef, useCallback } from 'react';
+// ...
+function App() {
+  const todos = useSelector(state => state.todo);
 
+  // add a ref so we can read the text input contents from a button click callback
+  const inputRef = useRef();
+
+  // add a callback for when the button is clicked
+  const onAdd = useCallback(() => {
+    // ... to be filled in
+  }, []);
+
+  // add the input and button elements to the rendered output...
+  return (
+    <div className="App">
+      <header className="App-header">
+        <input type="text" ref={inputRef} />
+        <button onClick={onAdd}>Add</button>
+        <ul>
+          {todos.map((t,i) => <li key={i}>{t.title}</li>)}
+        </ul>
+      </header>
+    </div>
+  );
+}
+```
+
+As with our list appearance, we're not aiming for a beautiful UI here, we just need enough to be able to add todo items.
+
+As written, this button doesn't actually do anything yet. What we need to do is `dispatch` our `addTodo` action.
+
+Most documentation and tutorials I have used in the past usually talk about `mapDispatchToProps`. Similar to `mapStateToProps`, this is a well-established way of using `react-redux`. However, as with `useSelector`, I prefer the hooks apprach - `useDispatch`.
+
+`useDispatch` returns a dispatch function that can dispatch Redux actions. All we need to do is the following in `src/App.js`:
+```jsx
+// add useDispatch to our react-redux import line
+import { useSelector, useDispatch } from 'react-redux';
+// import our action-builder function
+import { addTodo } from './store/todo';
+// ...
+function App() {
+  const todos = useSelector(state => state.todo);
+
+  // add a call to get a dispatch function
+  const dispatch = useDispatch();
+
+  const inputRef = useRef();
+  
+  const onAdd = useCallback(() => {
+    // dispatch our addTodo action, using the <input> text
+    dispatch(addTodo(inputRef.current.value));
+  }, [inputRef, dispatch]);
+```
+
+Now our button callback can dispatch the new todo. Try it yourself! Enter some text and press "Add", and the item you added will appear in the list below.
+
+# Now what?
 
 So that's the basics, but what else can we do with this?
 
-We said we wanted to be able to set items to "done", and it would also be useful to be able to delete todo items.
-
-Usually this type of data management (input, update, delete) would be driven by some kind of persistent data storage. We won't worry about that just yet, however we do need to treat the data similarly - namely we need to generate IDs to identify our todo items.
-Without this, we will struggle to update items as we only have the name to work with, and this might now be unique.
-
-We can simply update our reducer, so that when it adds a new todo, it also generates an id for it. Since this is an example, we'll just use a running counter from 1.
-
-We can also update our list display to use the actual todo keys instead of the array index.
-
-Now let's add a couple more actions for updating status, and deleting, using the ID to find the item to update.
-
-Now that we have more than one possible action in our reducer, it becomes more readable to use a switch statement
-
-Let's add a bit more UI to make use of these new actions
-
-There we go, some rough buttons to set a todo as "done", or delete one. 
+In part 2 we'll define a few additional actions for controlling the state of our items and also deleting them.
