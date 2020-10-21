@@ -155,7 +155,7 @@ return (
 );
 ```
 
-If we refresh the page, we can't see anything but the React-blue background. This is to be expected, we haven't added any todos yet. 
+If we start up our app with `yarn start` (or `npm start`), we can't see anything but the React-blue background. This is to be expected, we haven't added any todos yet. 
 
 Also, what is `t.title`? We didn't actually define any structure for our todo items yet, but for this example app we'll just be using a title and a status.
 
@@ -201,7 +201,7 @@ Now that we have an action to add a todo, we need a way of triggering it. In Red
 Let's quickly add a text input and Add button to `src/App.js` so we have a way of submitting a todo item:
 ```jsx
 // modify the React import to include additional hook functions needed
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 // ...
 function App() {
   const todos = useSelector(state => state.todo);
@@ -209,17 +209,12 @@ function App() {
   // add a ref so we can read the text input contents from a button click callback
   const inputRef = useRef();
 
-  // add a callback for when the button is clicked
-  const onAdd = useCallback(() => {
-    // ... to be filled in
-  }, []);
-
   // add the input and button elements to the rendered output...
   return (
     <div className="App">
       <header className="App-header">
         <input type="text" ref={inputRef} />
-        <button onClick={onAdd}>Add</button>
+        <button>Add</button>
         <ul>
           {todos.map((t,i) => <li key={i}>{t.title}</li>)}
         </ul>
@@ -249,17 +244,17 @@ function App() {
   const dispatch = useDispatch();
 
   const inputRef = useRef();
-  
-  const onAdd = useCallback(() => {
-    // dispatch our addTodo action, using the <input> text
-    dispatch(addTodo(inputRef.current.value));
-  }, [inputRef, dispatch]);
 ```
 
-Now our button callback can dispatch the new todo. Try it yourself! Enter some text and press "Add", and the item you added will appear in the list below.
+And then add an `onClick` handler to the button we added, which dispatches the action using the text input value:
+```jsx
+<button onClick={() => dispatch(addTodo(inputRef.current.value))}>Add</button>
+```
+
+Now our button callback can dispatch the new todo. Try it yourself! Enter some text in your app and press "Add". The item you added should appear in the list below.
 
 # Now what?
 
 So that's the basics, but what else can we do with this?
 
-In part 2 we'll define a few additional actions for controlling the state of our items and also deleting them.
+In [Part 2]({% post_url 2020-10-17-redux-with-react-hooks-part2 %}) we'll define a few additional actions for controlling the state of our items and also deleting them.
